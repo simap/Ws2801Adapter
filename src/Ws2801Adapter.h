@@ -23,7 +23,7 @@ typedef std::function<void(uint16_t index, uint8_t rgb[])> Ws2801PixelFunction;
 
 class Ws2801Adapter {
 public:
-    Ws2801Adapter(uint8_t o = WS2801_BGR) {
+    Ws2801Adapter(uint8_t o = WS2801_RGB) {
         setColorOrder(o);
     }
 
@@ -66,7 +66,7 @@ public:
         } buf, rgb;
 
         //wait for any previous latch
-        while (micros() - timer < 800) //2801 needs > 500us
+        while (micros() - timer < 700) //2801 needs > 500us
             yield();
 
         //pixels, sourced from callback
