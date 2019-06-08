@@ -66,7 +66,7 @@ public:
         } buf, rgb;
 
         //wait for any previous latch
-        while (micros() - timer < 2000) //2801 needs > 500us
+        while (micros() - timer < 2000) //2801 needs > 500us. 700us didnt work! 2ms does? :/
             yield();
 
         //pixels, sourced from callback
