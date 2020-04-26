@@ -36,11 +36,16 @@ public:
         SPI.setFrequency(spiFrequency);
         SPI.setBitOrder(MSBFIRST);
         SPI.setDataMode(SPI_MODE0);
+#ifdef ESP8266
         //borrowed from SPI.cpp, set registers for a 24bit transfer buffer
         uint16_t bits = 24;
         const uint32_t mask = ~((SPIMMOSI << SPILMOSI) | (SPIMMISO << SPILMISO));
         bits--;
         SPI1U1 = ((SPI1U1 & mask) | ((bits << SPILMOSI) | (bits << SPILMISO)));
+#endif
+#ifdef ESP32
+    //TODO optimize for pipelining, init 24 bit transfer settings here
+#endif
         timer = micros();
     }
 
@@ -66,7 +71,7 @@ public:
         } buf, rgb;
 
         //wait for any previous latch
-        while (micros() - timer < 2000) //2801 needs > 500us. 700us didnt work! 2ms does? :/
+        while (micros() - timer < 700) //2801 needs > 500us
             yield();
 
         //pixels, sourced from callback
@@ -86,15 +91,21 @@ public:
 
 private:
     inline void write24(uint32_t v) {
+#ifdef ESP8266
         while(SPI1CMD & SPIBUSY) {}
         SPI1W0 = v;
         SPI1CMD |= SPIBUSY;
+#endif
+#ifdef ESP32
+        //TODO optimize for pipelining, this will block until sent
+        SPI.transferBits(v, nullptr, 24);
+#endif
     }
     unsigned long timer;
     uint8_t
             rOffset,                                // Index of red in 3-byte pixel
-            gOffset,                                // Index of green byte
-            bOffset;                                // Index of blue byte
+    gOffset,                                // Index of green byte
+    bOffset;                                // Index of blue byte
 };
 
 
