@@ -9,22 +9,13 @@
 #include <SPI.h>
 #include <functional>
 
-//borrowed from Adafruit
-// Color-order flag for LED pixels (optional extra parameter to constructor):
-// Bits 0,1 = R index (0-2), bits 2,3 = G index, bits 4,5 = B index
-#define WS2801_RGB (0 | (1 << 2) | (2 << 4))
-#define WS2801_RBG (0 | (2 << 2) | (1 << 4))
-#define WS2801_GRB (1 | (0 << 2) | (2 << 4))
-#define WS2801_GBR (2 | (0 << 2) | (1 << 4))
-#define WS2801_BRG (1 | (2 << 2) | (0 << 4))
-#define WS2801_BGR (2 | (1 << 2) | (0 << 4))
 
 typedef std::function<void(uint16_t index, uint8_t rgb[])> Ws2801PixelFunction;
 
 class Ws2801Adapter {
 public:
-    Ws2801Adapter(uint8_t o = WS2801_RGB) {
-        setColorOrder(o);
+    Ws2801Adapter() {
+        setColorOrder(0, 1, 2);
     }
 
     ~Ws2801Adapter() {
@@ -57,10 +48,10 @@ public:
         SPI.setFrequency(spiFrequency);
     }
 
-    void setColorOrder(uint8_t o) {
-        rOffset = (uint8_t) ((o & 3));
-        gOffset = (uint8_t) (((o >> 2) & 3));
-        bOffset = (uint8_t) (((o >> 4) & 3));
+    void setColorOrder(uint8_t ri, uint8_t gi, uint8_t bi) {
+        rOffset = ri;
+        gOffset = gi;
+        bOffset = bi;
     }
 
     void show(uint16_t numPixels, Ws2801PixelFunction cb) {
